@@ -1,5 +1,6 @@
 import random
 
+#Gyorshatványozás -> alap, hatványkitevő, moduló
 def modular_exponentiation(a, k, m):
     result = 1
     a = a % m
@@ -10,6 +11,7 @@ def modular_exponentiation(a, k, m):
         a = (a * a) % m
     return result
 
+#2 körös Miller-Rabin prímszám vizsgálás
 def miller_rabin(n):
     if n < 2 or n % 2 == 0:
         return False
@@ -32,7 +34,7 @@ def miller_rabin(n):
         x = (x * x) % n
     return False
 
-
+#Prím szám generálása, miller_rabin felhasználásával
 def generate_prime(bits=1024):
     while True:
         candidate = random.getrandbits(bits)
@@ -40,7 +42,8 @@ def generate_prime(bits=1024):
         if miller_rabin(candidate):
             return candidate
 
-
+#Kibővített euklideszi algoritmus
+#output: leggnagyobb közös osztó, x és y
 def extended_euclid(a,b):
     x0,x1,y0,y1,k = 1,0,0,1,1
 
@@ -62,7 +65,8 @@ def extended_euclid(a,b):
     gcd = a
     return(gcd,x,y)
 
-
+#Kulcs generálás generate_prime felhasználásával, valalmint d kiszámítása extended_euclid segítségével
+#output: p, q, n, phi(n), e = 65537, d
 def generate_keys(bits=1024):
     p = generate_prime(bits)
     q = generate_prime(bits)
@@ -79,10 +83,13 @@ def generate_keys(bits=1024):
             d += phi_n
     return p, q, n, phi_n, e, d
 
-
+#Kódolás gyorshatványozással, csak számot tud feldolgozni, publikus kulcsot használva
+#output: kódolt üzenet
 def encrypt(message, e, n):
     return modular_exponentiation(message, e, n)
 
+#Visszafejtés kínai maradék tételt alkalmazva a titkos kulccsal
+#output: eredeti üzenet
 def decrypt(cipher, d, p, q):
     y1, y2 = 0, 0
     m = p * q
@@ -101,11 +108,11 @@ def decrypt(cipher, d, p, q):
 
     return ((c1 * y1 * m1) + (c2 * y2 * m2)) % m
 
-
+#RSA aláírás gyorshatványozással a titkos kulcsot használva
 def sign(message, d, n):
     return modular_exponentiation(message, d, n)
 
-
+#Aláírás érvényesítése publikus kulccsal és gyorshatványozással
 def verify(message, signature, e, n):
     is_valid = modular_exponentiation(signature, e, n)
     return is_valid == message
